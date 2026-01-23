@@ -40,10 +40,5 @@ public class UserController {
         return token.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(401).body("Invalid credentials"));
     }
 
-    @GetMapping("/test")
-    public ResponseEntity<String> test() {
-
-        return ResponseEntity.status(401).body("Invalid credentials");
-    }
 }
 

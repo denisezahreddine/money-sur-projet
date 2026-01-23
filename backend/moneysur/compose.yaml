@@ -1,6 +1,6 @@
 services:
   mysql:
-    image: 'mysql:8.0'   # Version stable existante
+    image: 'mysql:8.1'   # Version stable existante
     environment:
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
