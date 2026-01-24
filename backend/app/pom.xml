@@ -79,12 +79,12 @@
 		</dependency>
 
 		<!-- JetBrains Annotations: Fournit des annotations utiles pour l’analyse statique du code -->
-	<!--	<dependency>
+	<dependency>
 			<groupId>org.jetbrains</groupId>
 			<artifactId>annotations</artifactId>
 			<version>${annotations.version}</version>
 			<scope>compile</scope>
-		</dependency>-->
+		</dependency>
 
 
 
