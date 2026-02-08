@@ -1,19 +1,16 @@
-// src/main/java/com/example/demo/controller/UserController.java
 package com.bschool.moneysur.controller;
-
 
 import com.bschool.moneysur.dto.UserLoginDto;
 import com.bschool.moneysur.dto.UserRegistrationDto;
 import com.bschool.moneysur.service.UserService;
 import com.bschool.moneysur.user.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class UserController {
 
     private final UserService userService;
@@ -22,23 +19,43 @@ public class UserController {
         this.userService = userService;
     }
 
-
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody UserRegistrationDto registrationDto) {
-        Optional<User> existingUser = userService.findByUsername(registrationDto.getUsername());
-        if (existingUser.isPresent()) {
-            return ResponseEntity.badRequest().body(null);
-        } else {
-            User newUser = userService.register(registrationDto);
-            return ResponseEntity.ok(newUser);
+    public ResponseEntity<?> registerUser(@RequestBody UserRegistrationDto registrationDto) {
+        if (userService.existsByEmail(registrationDto.getEmail())) {
+            return ResponseEntity.badRequest().body("Error: Email is already in use!");
         }
+
+        User newUser = userService.register(registrationDto);
+        return ResponseEntity.ok(newUser);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody UserLoginDto loginDto) {
+    public ResponseEntity<?> loginUser(@RequestBody UserLoginDto loginDto) { // Utilise <?> ici
         Optional<String> token = userService.login(loginDto);
-        return token.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(401).body("Invalid credentials"));
+
+        if (token.isPresent()) {
+            // En cas de succès : on renvoie l'objet AuthResponse
+            return ResponseEntity.ok(new AuthResponse(token.get()));
+        } else {
+            // En cas d'échec : on renvoie une String (401 Unauthorized)
+            return ResponseEntity.status(401).body("Invalid email or password");
+        }
     }
 
-}
+    // Classe interne pour structurer la réponse JSON du Token
+    public static class AuthResponse {
+        private String token;
 
+        public AuthResponse(String token) {
+            this.token = token;
+        }
+
+        public String getToken() {
+            return token;
+        }
+
+        public void setToken(String token) {
+            this.token = token;
+        }
+    }
+}

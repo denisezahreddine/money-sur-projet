@@ -1,9 +1,7 @@
-// src/main/java/com/example/demo/service/CustomUserDetailsService.java
 package com.bschool.moneysur.service;
 
 import com.bschool.moneysur.repository.UserRepository;
 import com.bschool.moneysur.user.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,14 +17,16 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        //  On cherche par email
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
+        // On construit l'objet UserDetails de Spring Security
         return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getUsername())
-                .password(user.getPassword())
-                .roles(user.getRole())
+                .username(user.getEmail()) // L'email sert d'identifiant (username) pour Spring Security
+                .password(user.getPasswordHash())
+                .roles(user.getTypeProfil()) // On utilise typeProfil
                 .build();
     }
 }
