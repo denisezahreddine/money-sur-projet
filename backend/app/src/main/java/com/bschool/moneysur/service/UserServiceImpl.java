@@ -28,23 +28,33 @@ public class UserServiceImpl implements UserService {
     @Override
     public User register(UserRegistrationDto registrationDto) {
         User user = new User();
-        // Adaptation aux nouveaux champs de l'entité User
         user.setFirstName(registrationDto.getFirstName());
         user.setLastName(registrationDto.getLastName());
         user.setEmail(registrationDto.getEmail());
+        // Hachage du mot de passe
         user.setPasswordHash(passwordEncoder.encode(registrationDto.getPassword()));
         user.setTypeProfil(registrationDto.getTypeProfil()); // 'SENIOR' ou 'FAMILY'
-
+       // Statut "Non vérifié"
+        user.setIsEmailVerified(false);
         // Initialisation par défaut
         user.setBalance(BigDecimal.ZERO);
         user.setDailySpend(BigDecimal.ZERO);
 
-        return userRepository.save(user);
+        //  Génération du token de vérification
+        String verificationToken = java.util.UUID.randomUUID().toString();
+        user.setResetToken(verificationToken); // On réutilise ce champ
+        user.setResetExpiresAt(java.time.LocalDateTime.now().plusHours(24));
+        User savedUser = userRepository.save(user);
+
+        // TODO: Appeler ici un EmailService.sendActivationEmail(savedUser.getEmail(), verificationToken);
+        System.out.println("Token d'activation généré pour " + savedUser.getEmail() + " : " + verificationToken);
+
+        return savedUser;
     }
 
     @Override
     public Optional<String> login(UserLoginDto loginDto) {
-        // On cherche maintenant par Email (plus sécurisé et standard)
+        // On cherche par Email
         Optional<User> userOptional = userRepository.findByEmail(loginDto.getEmail());
 
         if (userOptional.isPresent()) {

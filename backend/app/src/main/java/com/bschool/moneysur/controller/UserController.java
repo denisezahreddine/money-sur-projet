@@ -4,6 +4,7 @@ import com.bschool.moneysur.dto.UserLoginDto;
 import com.bschool.moneysur.dto.UserRegistrationDto;
 import com.bschool.moneysur.service.UserService;
 import com.bschool.moneysur.user.User;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +21,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody UserRegistrationDto registrationDto) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody UserRegistrationDto registrationDto) {
         if (userService.existsByEmail(registrationDto.getEmail())) {
             return ResponseEntity.badRequest().body("Error: Email is already in use!");
         }
