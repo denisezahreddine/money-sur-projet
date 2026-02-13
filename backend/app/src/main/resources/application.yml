@@ -1,10 +1,38 @@
+app:
+  # URL pour les liens (activation, reset password)
+  base-url: ${APP_BASE_URL:http://localhost:8080}
+
+  # Adresse affichée comme expéditeur de l'email
+  mail-from: ${MAIL_FROM:no-reply@moneysur.com}
+
+  # Configuration JWT (injectée dans JwtUtil)
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_EXPIRATION:86400000}
+
+
 spring:
   application:
     name: moneysur
   config:
     import: "optional:file:.env[.properties]"
+
+
+  mail:
+    host: sandbox.smtp.mailtrap.io
+    port: 2525
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+
   datasource:
-    url: DATABASE_URL/${MYSQL_DATABASE}
+    url: ${DATABASE_URL}/${MYSQL_DATABASE}
     username: ${MYSQL_USER}
     password: ${MYSQL_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver

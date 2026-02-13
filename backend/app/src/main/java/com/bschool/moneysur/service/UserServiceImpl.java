@@ -18,11 +18,13 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
-    public UserServiceImpl(UserRepository userRepository, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, JwtUtil jwtUtil, PasswordEncoder passwordEncoder,EmailService emailService) {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
     @Override
@@ -46,8 +48,7 @@ public class UserServiceImpl implements UserService {
         user.setResetExpiresAt(java.time.LocalDateTime.now().plusHours(24));
         User savedUser = userRepository.save(user);
 
-        // TODO: Appeler ici un EmailService.sendActivationEmail(savedUser.getEmail(), verificationToken);
-        System.out.println("Token d'activation généré pour " + savedUser.getEmail() + " : " + verificationToken);
+        emailService.sendVerificationEmail(savedUser.getEmail(), savedUser.getResetToken());
 
         return savedUser;
     }
@@ -59,8 +60,14 @@ public class UserServiceImpl implements UserService {
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
+            //Vérifier si le mot de passe est correct
             if (passwordEncoder.matches(loginDto.getPassword(), user.getPasswordHash())) {
-                // On génère le token basé sur l'email
+
+                // Vérifier si l'email est validé
+                if (!user.getIsEmailVerified()) {
+                    return Optional.empty();
+                }
+                //Si tout est OK, on génère le token
                 String token = jwtUtil.generateToken(user.getEmail());
                 return Optional.of(token);
             }
@@ -75,7 +82,27 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<String> verifyEmailAndLogin(String token) {
-        return Optional.empty();
+        // Chercher l'utilisateur par son token UUID
+        Optional<User> userOptional = userRepository.findByResetToken(token);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+
+            //  Vérifier si le token n'est pas expiré
+            if (user.getResetExpiresAt().isAfter(java.time.LocalDateTime.now())) {
+
+                // Activer l'utilisateur et nettoyer les champs de token
+                user.setIsEmailVerified(true);
+                user.setResetToken(null);
+                user.setResetExpiresAt(null);
+
+                userRepository.save(user);
+
+                // Générer le JWT pour connecter l'utilisateur immédiatement
+                return Optional.of(jwtUtil.generateToken(user.getEmail()));
+            }
+        }
+        return Optional.empty(); // Token invalide ou expiré
     }
 
     @Override
