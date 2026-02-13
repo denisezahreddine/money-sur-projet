@@ -4,7 +4,11 @@ import com.bschool.moneysur.dto.UserLoginDto;
 import com.bschool.moneysur.dto.UserRegistrationDto;
 import com.bschool.moneysur.service.UserService;
 import com.bschool.moneysur.user.User;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,32 +35,29 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody UserLoginDto loginDto) { // Utilise <?> ici
+    public ResponseEntity<?> loginUser(@RequestBody UserLoginDto loginDto, HttpServletResponse response) {
         Optional<String> token = userService.login(loginDto);
 
         if (token.isPresent()) {
-            // En cas de succès : on renvoie l'objet AuthResponse
-            return ResponseEntity.ok(new AuthResponse(token.get()));
+            // Création du cookie moderne
+            ResponseCookie cookie = ResponseCookie.from("token", token.get())
+                    .httpOnly(true)           // Sécurise le cookie côté JS
+                    .secure(false)            // false en local, true en prod
+                    .path("/")                // Cookie accessible sur tout le site
+                    .maxAge(10 * 60 * 60)     // 10 heures
+                    .sameSite("Lax")          // SameSite pour Angular local ,Strict' ou 'None' en prod selon le besoin
+                    .build();
+
+            // On ajoute le cookie à l'entête HTTP
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+
+            return ResponseEntity.ok("Connexion réussie !");
         } else {
-            // En cas d'échec : on renvoie une String (401 Unauthorized)
-            return ResponseEntity.status(401).body("Invalid email or password");
+            return ResponseEntity.status(401).body("Email ou mot de passe incorrect");
         }
     }
 
-    // Classe interne pour structurer la réponse JSON du Token
-    public static class AuthResponse {
-        private String token;
 
-        public AuthResponse(String token) {
-            this.token = token;
-        }
 
-        public String getToken() {
-            return token;
-        }
-
-        public void setToken(String token) {
-            this.token = token;
-        }
-    }
 }

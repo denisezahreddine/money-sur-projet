@@ -4,6 +4,7 @@ import com.bschool.moneysur.service.CustomUserDetailsService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -33,29 +34,36 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        final String authHeader = request.getHeader("Authorization");
-
         String username = null;
         String jwt = null;
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            jwt = authHeader.substring(7);
-
-            try {
-                username = jwtUtil.extractUsername(jwt);
-            } catch (ExpiredJwtException e) {
-                logger.warn("JWT expired");
-            } catch (Exception e) {
-                logger.warn("Invalid JWT token");
+        // On cherche le JWT dans les Cookies
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("token".equals(cookie.getName())) {
+                    jwt = cookie.getValue();
+                    break;
+                }
             }
         }
 
+        // Si on a trouvé un token, on extrait le username (email)
+        if (jwt != null) {
+            try {
+                username = jwtUtil.extractUsername(jwt);
+            } catch (ExpiredJwtException e) {
+                logger.warn("JWT expiré");
+            } catch (Exception e) {
+                logger.warn("JWT invalide");
+            }
+        }
+
+        // Si on a un username et que l'utilisateur n'est pas déjà authentifié dans le contexte
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
             if (jwtUtil.validateToken(jwt, userDetails.getUsername())) {
-
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails,
@@ -67,6 +75,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );
 
+                // On injecte l'utilisateur dans le contexte de sécurité
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
@@ -74,14 +83,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    // Skip JWT check for public endpoints
+    // On ignore le filtre pour les routes publiques
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
-        return path.startsWith("api/auth")
-                || path.startsWith("/login")
+        return path.startsWith("/api/auth")   // Inscription, Login, Vérification Email
                 || path.startsWith("/swagger")
-                || path.startsWith("/test")
                 || path.startsWith("/v3/api-docs");
+
     }
 }

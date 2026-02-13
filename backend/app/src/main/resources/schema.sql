@@ -54,6 +54,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 `status` VARCHAR(20) NOT NULL,
 `id_owner_user` BIGINT NOT NULL,
 `id_target_user` BIGINT NOT NULL,
+PRIMARY KEY (`id_contact`),
 CONSTRAINT `fk_contact_owner` FOREIGN KEY (`id_owner_user`) REFERENCES `user` (`id_user`),
 CONSTRAINT `unique_contact` UNIQUE (`id_owner_user`, `id_target_user`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
