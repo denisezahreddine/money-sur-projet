@@ -61,5 +61,5 @@ Cliquez sur le bouton ACTIVER MON COMPTE.
 **Étape 3 : Vérification et JWT**
 Le clic ouvrira votre navigateur sur : http://localhost:8080/api/auth/verify-email?token=...
 
-Si le token est valide, message de Succès s'affiche
+Si le token est valide, message de Succès s'affiche 
 Base de données : Le champ is_email_verified passera à 1 pour cet utilisateur.

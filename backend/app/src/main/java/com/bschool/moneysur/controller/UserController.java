@@ -69,6 +69,23 @@ public class UserController {
         }
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+
+        ResponseCookie deleteCookie = ResponseCookie.from("token", "")
+                .httpOnly(true)
+                .secure(false) // true en prod
+                .path("/")
+                .maxAge(0) // supprime immédiatement
+                .sameSite("Lax")
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
+
+        return ResponseEntity.ok("Déconnexion réussie");
+    }
+
+
     private ResponseCookie createAuthCookie(String token) {
         return ResponseCookie.from("token", token)
                 .httpOnly(true)// Sécurise le cookie côté JS

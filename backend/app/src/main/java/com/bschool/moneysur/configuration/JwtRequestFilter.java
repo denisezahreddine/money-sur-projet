@@ -37,7 +37,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         String username = null;
         String jwt = null;
 
-        // On cherche le JWT dans les Cookies
+        // On cherche le JWT dans les Cookies (comme en Node.js)
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
                 if ("token".equals(cookie.getName())) {
