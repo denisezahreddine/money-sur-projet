@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.3.1</version>
+		<version>3.4.2</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.bschool</groupId>
@@ -28,7 +28,7 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
-		<spring.boot.version>3.3.1</spring.boot.version>
+		<spring.boot.version>3.4.2</spring.boot.version>
 		<swagger.version>2.0.3</swagger.version>
 		<mysql.connector.version>8.0.33</mysql.connector.version>
 		<h2.version>2.1.214</h2.version>
@@ -42,14 +42,13 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
-			<version>${spring.boot.version}</version>
 		</dependency>
 
 		<!-- Spring Web: Permet de créer des API REST et des applications web -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-			<version>${spring.boot.version}</version>
+
 		</dependency>
 
 		<!-- DevTools: Facilite le développement avec le rechargement automatique des changements -->
@@ -58,7 +57,6 @@
 			<artifactId>spring-boot-devtools</artifactId>
 			<scope>runtime</scope>
 			<optional>true</optional>
-			<version>${spring.boot.version}</version>
 		</dependency>
 
 		<!-- Docker Compose: Permet d’intégrer des services Docker directement depuis Spring Boot -->
@@ -67,7 +65,6 @@
 			<artifactId>spring-boot-docker-compose</artifactId>
 			<scope>runtime</scope>
 			<optional>true</optional>
-			<version>${spring.boot.version}</version>
 		</dependency>
 
 		<!-- MySQL Connector: Pilote JDBC pour connecter l'application à une base MySQL -->
@@ -115,7 +112,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-			<version>${spring.boot.version}</version>
 		</dependency>
 
 		<!-- H2 Database: Base de données en mémoire pour les tests et le développement -->
@@ -151,6 +147,16 @@
 			<artifactId>jjwt-jackson</artifactId>
 			<version>0.11.5</version>
 			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
 
 	</dependencies>
