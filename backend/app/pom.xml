@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.2</version>
+		<version>4.0.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.bschool</groupId>
@@ -28,14 +28,14 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
-		<spring.boot.version>3.4.2</spring.boot.version>
-		<swagger.version>2.0.3</swagger.version>
+		<spring.boot.version>4.0.0</spring.boot.version>
+		<swagger.version>3.0.1</swagger.version>
 		<mysql.connector.version>8.0.33</mysql.connector.version>
 		<h2.version>2.1.214</h2.version>
 		<testng.version>7.7.1</testng.version>
 		<gson.version>2.9.0</gson.version>
 		<annotations.version>23.0.0</annotations.version>
-		<mssql-jdbc.version>9.4.1.jre8</mssql-jdbc.version>
+		<mssql-jdbc.version>12.9.1.jre21</mssql-jdbc.version> <!-- Updated for Java 21 -->
 	</properties>
 	<dependencies>
 		<!-- Spring Data JPA: Permet la gestion de la persistance et des opérations sur les bases de données avec JPA/Hibernate -->
@@ -76,7 +76,7 @@
 		</dependency>
 
 		<!-- JetBrains Annotations: Fournit des annotations utiles pour l’analyse statique du code -->
-	<dependency>
+		<dependency>
 			<groupId>org.jetbrains</groupId>
 			<artifactId>annotations</artifactId>
 			<version>${annotations.version}</version>
