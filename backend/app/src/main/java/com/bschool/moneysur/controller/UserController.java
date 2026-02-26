@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/auth")
 public class UserController {
@@ -38,15 +39,18 @@ public class UserController {
     //LOGIN
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody UserLoginDto loginDto, HttpServletResponse response) {
+
+        Optional<User> userOptional = userService.findByEmail(loginDto.getEmail());
         Optional<String> token = userService.login(loginDto);
 
-        if (token.isPresent()) {
-            // Création du cookie moderne
+        if (token.isPresent() && userOptional.isPresent()) {
+            // Création du cookie
             ResponseCookie cookie =createAuthCookie(token.get());
 
+            //On renvoie l'objet User complet
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .body("Connexion réussie !");
+                    .body(userOptional.get());
         } else {
             return ResponseEntity.status(401).body("Email ou mot de passe incorrect");
         }
@@ -84,6 +88,7 @@ public class UserController {
 
         return ResponseEntity.ok("Déconnexion réussie");
     }
+
 
 
     private ResponseCookie createAuthCookie(String token) {

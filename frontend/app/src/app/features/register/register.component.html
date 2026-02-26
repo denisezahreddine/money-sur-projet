@@ -1,0 +1,13 @@
+<form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+  <input formControlName="firstName" placeholder="Prénom">
+  <input formControlName="lastName" placeholder="Nom">
+  <input formControlName="email" placeholder="Email">
+  <input formControlName="password" type="password" placeholder="Mot de passe">
+
+  <select formControlName="typeProfil">
+    <option value="SENIOR">Senior</option>
+    <option value="FAMILY">Family</option>
+  </select>
+
+  <button type="submit" [disabled]="registerForm.invalid || loading()">S'inscrire</button>
+</form>

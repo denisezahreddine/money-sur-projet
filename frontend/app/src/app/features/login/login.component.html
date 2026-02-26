@@ -1,52 +1,42 @@
 <div class="login-container">
   <div class="login-card">
 
-    <!-- Logo -->
-    <div class="logo-container">
-      <img src="assets/logo.png" alt="MoneySur Logo" class="logo" />
+    <div class="logo-wrapper">
+      <img src="logomoneysur.png" alt="MoneySur" class="logo" />
     </div>
 
-    <!-- Title -->
     <h1 class="title">
       Connexion
-      <span class="icon">🔊</span>
+  <app-audio-icon></app-audio-icon>
+
     </h1>
 
     <p class="subtitle">
       Bienvenue sur MoneySur, votre application de paiement
     </p>
 
+    <div *ngIf="error()" class="error-banner">{{ error() }}</div>
+
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <label>Adresse email
+   <app-audio-icon ></app-audio-icon></label>
+      <input type="email" formControlName="email" placeholder="exemple@email.com" class="input" />
 
-      <!-- Email -->
-      <label>Adresse email 🔊</label>
-      <input
-        type="email"
-        formControlName="email"
-        placeholder="exemple@email.com"
-        class="input"
-      />
+      <label>Mot de passe
+   <app-audio-icon></app-audio-icon> </label>
+      <input type="password" formControlName="password" placeholder="........" class="input" />
 
-      <!-- Password -->
-      <label>Mot de passe 🔊</label>
-      <input
-        type="password"
-        formControlName="password"
-        class="input"
-      />
-
-      <!-- Login Button -->
-      <button type="submit" class="btn-primary">
-        → Se connecter 🔊
+      <button type="submit" class="btn-primary" [disabled]="loginForm.invalid || loading()">
+        <span *ngIf="!loading()">→ Se connecter
+   <app-audio-icon color="#FFFFFF" ></app-audio-icon></span>
+        <span *ngIf="loading()">Connexion...</span>
       </button>
-
     </form>
 
     <p class="no-account">Vous n'avez pas de compte ?</p>
-
-    <button class="btn-secondary">
-      Créer un compte 🔊
+    <button type="button" class="btn-secondary" routerLink="/register">
+      Créer un compte
+    <app-audio-icon color="#FFFFFF" ></app-audio-icon>
     </button>
-
   </div>
 </div>
