@@ -1,14 +1,8 @@
-<div class="login-container">
-  <div class="login-card">
-
-    <div class="logo-wrapper">
-      <img src="logomoneysur.png" alt="MoneySur" class="logo" />
-    </div>
+<app-auth-layout>
 
     <h1 class="title">
       Connexion
-  <app-audio-icon></app-audio-icon>
-
+      <app-audio-icon></app-audio-icon>
     </h1>
 
     <p class="subtitle">
@@ -18,25 +12,29 @@
     <div *ngIf="error()" class="error-banner">{{ error() }}</div>
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-      <label>Adresse email
-   <app-audio-icon ></app-audio-icon></label>
+      <app-label>Adresse email
+        <app-audio-icon ></app-audio-icon>
+      </app-label>
       <input type="email" formControlName="email" placeholder="exemple@email.com" class="input" />
 
-      <label>Mot de passe
-   <app-audio-icon></app-audio-icon> </label>
+      <app-label>Mot de passe
+       <app-audio-icon></app-audio-icon>
+      </app-label>
       <input type="password" formControlName="password" placeholder="........" class="input" />
 
-      <button type="submit" class="btn-primary" [disabled]="loginForm.invalid || loading()">
-        <span *ngIf="!loading()">→ Se connecter
-   <app-audio-icon color="#FFFFFF" ></app-audio-icon></span>
+
+      <app-button variant="primary" type="submit"  [disabled]="loginForm.invalid || loading()">
+        <span *ngIf="!loading()"> Se connecter
+         <app-audio-icon color="#FFFFFF" ></app-audio-icon>
+        </span>
         <span *ngIf="loading()">Connexion...</span>
-      </button>
+      </app-button>
     </form>
 
     <p class="no-account">Vous n'avez pas de compte ?</p>
-    <button type="button" class="btn-secondary" routerLink="/register">
+
+    <app-button variant="secondary" type="button"  routerLink="/register">
       Créer un compte
-    <app-audio-icon color="#FFFFFF" ></app-audio-icon>
-    </button>
-  </div>
-</div>
+     <app-audio-icon color="#FFFFFF" ></app-audio-icon>
+    </app-button >
+</app-auth-layout>

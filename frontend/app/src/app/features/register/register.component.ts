@@ -1,38 +1,66 @@
-import { Component, inject } from '@angular/core'; // Import essentiel
-import { CommonModule } from '@angular/common'; // Pour le HTML
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms'; // Pour les formulaires
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { AuthStore } from '../../store/auth.store';
 import { RegisterUseCase } from '../../usecases/register-usecase';
-
-
+import { AudioIconComponent } from '../../shared/audio-icon.component/audio-icon.component';
+import {AuthLayoutComponent} from '../../shared/auth-layout.component/auth-layout.component'
+import {ButtonComponent} from '../../shared/button.component/button.component';
+import {LabelComponent} from '../../shared/label.component/label.component'
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, RouterLink, AudioIconComponent,AuthLayoutComponent,ButtonComponent,LabelComponent],
   templateUrl: './register.component.html',
+  styleUrl: '../../../styles.css'
 })
 export class RegisterComponent {
   private registerUseCase = inject(RegisterUseCase);
   private store = inject(AuthStore);
+  private fb = inject(FormBuilder);
 
   registerForm: FormGroup;
   loading = this.store.loading;
   error = this.store.error;
 
-  constructor(private fb: FormBuilder) {
+  constructor() {
     this.registerForm = this.fb.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
+      fullName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
-      typeProfil: ['SENIOR'] // Valeur par défaut
-    });
+      confirmPassword: ['', Validators.required],
+      typeProfil: ['', Validators.required]
+    }, { validators: this.passwordMatchValidator });
+  }
+
+  // Validateur pour vérifier que les deux mots de passe sont identiques
+  passwordMatchValidator(g: FormGroup) {
+    const pass = g.get('password')?.value;
+    const confirm = g.get('confirmPassword')?.value;
+    return pass === confirm ? null : { mismatch: true };
   }
 
   onRegister() {
     if (this.registerForm.valid) {
-      this.registerUseCase.execute(this.registerForm.value);
+      const formValue = this.registerForm.value;
+
+      // Extraction du prénom et du nom à partir du nom complet
+      const nameParts = formValue.fullName.trim().split(' ');
+      const firstName = nameParts[0];
+      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '.';
+
+      // On prépare l'objet final pour le RegisterUseCase
+      const payload = {
+        firstName: firstName,
+        lastName: lastName,
+        email: formValue.email,
+        password: formValue.password,
+        typeProfil: formValue.typeProfil
+      };
+
+      this.registerUseCase.execute(payload).subscribe();
     }
   }
 }

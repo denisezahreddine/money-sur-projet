@@ -6,14 +6,17 @@ import {LoginViewModel} from '../../viewModels/login.view-model';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import {AudioIconComponent} from '../../shared/audio-icon/audio-icon.component';
+import {AudioIconComponent} from '../../shared/audio-icon.component/audio-icon.component';
+import {AuthLayoutComponent} from '../../shared/auth-layout.component/auth-layout.component'
+import {ButtonComponent} from '../../shared/button.component/button.component'
+import {LabelComponent} from '../../shared/label.component/label.component'
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule,RouterLink,AudioIconComponent],
+  imports: [CommonModule, ReactiveFormsModule,RouterLink,AudioIconComponent,AuthLayoutComponent,ButtonComponent,LabelComponent],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrl: '../../../styles.css'
 })
 
   export class LoginComponent {
