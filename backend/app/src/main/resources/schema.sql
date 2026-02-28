@@ -1,14 +1,6 @@
 --  Désactiver temporairement les vérifications de clés étrangères pour éviter les erreurs
 SET FOREIGN_KEY_CHECKS = 0;
 
---  Supprimer les tables si elles existent (dans l'ordre inverse des dépendances)
-DROP TABLE IF EXISTS `supervision`;
-DROP TABLE IF EXISTS `transaction`;
-DROP TABLE IF EXISTS `contact`;
-DROP TABLE IF EXISTS `payment_card`;
-DROP TABLE IF EXISTS `invoice`;
-DROP TABLE IF EXISTS `caregiver`;
-DROP TABLE IF EXISTS `user`;
 
 -- Réactiver les vérifications
 SET FOREIGN_KEY_CHECKS = 1;
