@@ -1,13 +1,14 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject , signal} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthStore } from '../../store/auth.store';
-import { RegisterUseCase } from '../../usecases/register-usecase';
+import { RegisterUseCase } from '../../usecases/register.usecase';
 import { AudioIconComponent } from '../../shared/audio-icon.component/audio-icon.component';
 import {AuthLayoutComponent} from '../../shared/auth-layout.component/auth-layout.component'
 import {ButtonComponent} from '../../shared/button.component/button.component';
-import {LabelComponent} from '../../shared/label.component/label.component'
+import {LabelComponent} from '../../shared/label.component/label.component';
+
 
 @Component({
   selector: 'app-register',
@@ -21,9 +22,12 @@ export class RegisterComponent {
   private store = inject(AuthStore);
   private fb = inject(FormBuilder);
 
+
+  registrationSubmited= false;
   registerForm: FormGroup;
   loading = this.store.loading;
-  error = this.store.error;
+  errorMessage = signal<string | null>(null);
+
 
   constructor() {
     this.registerForm = this.fb.group({
@@ -43,6 +47,13 @@ export class RegisterComponent {
   }
 
   onRegister() {
+    this.registrationSubmited = false; // reset AVANT toute tentative
+    this.errorMessage.set(null);
+
+    if (this.registerForm.invalid) {
+      this.registerForm.markAllAsTouched(); // pour afficher les erreurs
+      return;
+    }
     if (this.registerForm.valid) {
       const formValue = this.registerForm.value;
 
@@ -60,7 +71,21 @@ export class RegisterComponent {
         typeProfil: formValue.typeProfil
       };
 
-      this.registerUseCase.execute(payload).subscribe();
+      this.registerUseCase.execute(payload).subscribe({
+        next: (res: string) => {
+          // L'utilisateur doit maintenant aller voir ses mails.
+          this.registrationSubmited = true;
+          this.errorMessage.set(null);
+          console.log(res);
+
+        },
+        error: (err) => {
+          this.registrationSubmited = false;
+          const message = err?.message || 'Échec de l\'inscription';
+          this.errorMessage.set(message);
+          console.error("Erreur d'inscription", message);
+        }
+      });
     }
   }
 }

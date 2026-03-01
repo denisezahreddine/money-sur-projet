@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
+import { User } from '../api/models/user.models';
 
 
 @Injectable({ providedIn: 'root' })
@@ -21,7 +22,7 @@ export class AuthApi {
   }
 
   verifyEmail(token: string) {
-    return this.http.get(`${this.baseUrl}/auth/verify-email`, {
+    return this.http.get<User>(`${this.baseUrl}/auth/verify-email`, {
       params: { token },
       withCredentials: true
     });

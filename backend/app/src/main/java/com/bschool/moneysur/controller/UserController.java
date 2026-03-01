@@ -2,6 +2,7 @@ package com.bschool.moneysur.controller;
 
 import com.bschool.moneysur.dto.UserLoginDto;
 import com.bschool.moneysur.dto.UserRegistrationDto;
+import com.bschool.moneysur.repository.UserRepository;
 import com.bschool.moneysur.service.UserService;
 import com.bschool.moneysur.user.User;
 import jakarta.servlet.http.Cookie;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:4200")
@@ -20,20 +22,22 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
+    private final UserRepository userRepository;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService,UserRepository userRepository) {
         this.userService = userService;
+        this.userRepository = userRepository;
     }
 
     //REGISTER
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody UserRegistrationDto registrationDto) {
         if (userService.existsByEmail(registrationDto.getEmail())) {
-            return ResponseEntity.badRequest().body("Erreur : Email déjà utilisé !");
+            return ResponseEntity.badRequest().body(Map.of("message", "Erreur : Email déjà utilisé !"));
         }
 
         userService.register(registrationDto);
-        return ResponseEntity.ok("Inscription réussie ! Veuillez vérifier vos emails.");
+        return ResponseEntity.ok(Map.of("message", "Inscription réussie ! Veuillez vérifier vos emails."));
     }
 
     //LOGIN
@@ -59,17 +63,22 @@ public class UserController {
     //  VERIFY EMAIL (Auto-Login)
     @GetMapping("/verify-email")
     public ResponseEntity<?> verifyEmail(@RequestParam("token") String token) {
-        Optional<String> jwt = userService.verifyEmailAndLogin(token);
+        try {
+            Optional<User> userOptional = userRepository.findByResetToken(token);
+            Optional<String> jwt = userService.verifyEmailAndLogin(token);
 
-        if (jwt.isPresent()) {
-            //  on crée le MEME cookie que pour le login
-            ResponseCookie cookie = createAuthCookie(jwt.get());
+            if (jwt.isPresent() && userOptional.isPresent()) {
+                ResponseCookie cookie = createAuthCookie(jwt.get());
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                        .body(userOptional.get());
+            } else {
 
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .body("Email vérifié avec succès ! Vous êtes connecté.");
-        } else {
-            return ResponseEntity.badRequest().body("Lien invalide ou expiré.");
+                return ResponseEntity.badRequest().body(Map.of("message", "Lien invalide ou expiré."));
+            }
+        } catch (Exception e) {
+            // Au cas où userService lance une exception si le token est déjà validé
+            return ResponseEntity.badRequest().body(Map.of("message", "Ce lien a déjà été utilisé ou a expiré."));
         }
     }
 

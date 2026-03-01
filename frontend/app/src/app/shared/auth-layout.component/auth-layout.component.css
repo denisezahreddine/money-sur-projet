@@ -1,5 +1,5 @@
 /* --- Conteneur et Carte --- */
-.login-container {
+.auth-container {
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -9,7 +9,7 @@
   padding: 1rem;
 }
 
-.login-card {
+.auth-card {
   width: 100%;
   max-width: 420px;
   max-height: none;

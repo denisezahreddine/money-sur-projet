@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { RegisterUseCase } from '../usecases/register-usecase';
+import { RegisterUseCase } from '../usecases/register.usecase';
 import { AuthStore } from '../store/auth.store';
 
 @Injectable({ providedIn: 'root' })
@@ -8,7 +8,7 @@ export class RegisterViewModel {
   private store = inject(AuthStore);
 
   register(userData: any): void {
-    // Mapping pour correspondre au backend si nécessaire
+    // Mapping pour correspondre au backend
     const payload = {
       firstName: userData.firstName,
       lastName: userData.lastName,

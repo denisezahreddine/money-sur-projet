@@ -1,0 +1,25 @@
+<app-auth-layout>
+  <div class="verify-card">
+    <h1 class="title">Activation </h1>
+
+    <div *ngIf="status() === 'loading'" class="status-box">
+      <p>Validation de votre lien en cours...</p>
+    </div>
+
+    <div *ngIf="status() === 'success'" class="status-box success">
+      <p> Compte activé avec succès !</p>
+      <p>Bienvenue sur MoneySur. Redirection...</p>
+    </div>
+
+    <div *ngIf="status() === 'error'" class="status-box error">
+      <p> Erreur de validation</p>
+      <p>{{ errorMessage() }}</p>
+
+    </div>
+    <div class="action-button-container">
+      <app-button variant="secondary"  type="button" routerLink="/register">
+        Réessayer l'inscription <app-audio-icon color="#FFFFFF" ></app-audio-icon>
+      </app-button>
+    </div>
+  </div>
+</app-auth-layout>

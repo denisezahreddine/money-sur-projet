@@ -5,8 +5,12 @@
     </h1>
 
     <p class="subtitle">Rejoignez MoneySur en quelques étapes</p>
+    <div *ngIf="registrationSubmited && !errorMessage()" class="success-banner">
+     <p> <strong>Inscription réussie !</strong></p>
+     <p>Un e-mail de confirmation a été envoyé. Veuillez cliquer sur le lien dans votre boîte mail pour activer votre compte.</p>
+    </div>
 
-    <div *ngIf="error()" class="error-banner">{{ error() }}</div>
+    <div *ngIf="errorMessage()" class="error-banner">{{ errorMessage() }}</div>
 
     <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
 
@@ -15,13 +19,24 @@
 
       <app-label>Adresse email <app-audio-icon ></app-audio-icon></app-label>
       <input type="email" formControlName="email" placeholder="exemple@email.com" class="input" />
+      <div *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.invalid" class="error-banner">
+        Email invalide
+      </div>
+
 
       <app-label>Mot de passe <app-audio-icon ></app-audio-icon></app-label>
       <input type="password" formControlName="password" placeholder="........" class="input" />
 
+      <div *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.errors?.['minlength']" class="error-banner">
+        Le mot de passe doit contenir au moins 8 caractères
+      </div>
+
       <app-label>Confirmez le mot de passe <app-audio-icon ></app-audio-icon></app-label>
       <input type="password" formControlName="confirmPassword" placeholder="........" class="input"
              [class.input-error]="registerForm.errors?.['mismatch'] && registerForm.get('confirmPassword')?.touched" />
+      <div *ngIf="registerForm.errors?.['mismatch'] && registerForm.get('confirmPassword')?.touched" class="error-banner">
+        Les mots de passe ne correspondent pas
+      </div>
       <app-label>Type de profil <app-audio-icon></app-audio-icon></app-label>
 
       <div class="profile-type-container">

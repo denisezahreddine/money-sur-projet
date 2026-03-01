@@ -9,7 +9,9 @@
       Bienvenue sur MoneySur, votre application de paiement
     </p>
 
-    <div *ngIf="error()" class="error-banner">{{ error() }}</div>
+  <div *ngIf="errorMessage()" class="error-banner">
+    {{ errorMessage() }}
+  </div>
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <app-label>Adresse email
