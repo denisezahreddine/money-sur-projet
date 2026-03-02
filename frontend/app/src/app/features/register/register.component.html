@@ -27,8 +27,8 @@
       <app-label>Mot de passe <app-audio-icon ></app-audio-icon></app-label>
       <input type="password" formControlName="password" placeholder="........" class="input" />
 
-      <div *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.errors?.['minlength']" class="error-banner">
-        Le mot de passe doit contenir au moins 8 caractères
+      <div *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.errors?.['pattern']" class="error-banner">
+        Le mot de passe doit contenir au minimum 8 caractères, dont 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial (@$!%*?&).
       </div>
 
       <app-label>Confirmez le mot de passe <app-audio-icon ></app-audio-icon></app-label>
