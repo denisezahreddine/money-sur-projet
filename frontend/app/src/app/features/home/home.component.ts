@@ -1,26 +1,25 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthStore } from '../../store/auth.store';
+import {ButtonComponent} from '../../shared/button.component/button.component';
+import { LogoutUseCase } from '../../usecases/logout.usecase';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
-  template: `
-    <div style="text-align: center; margin-top: 50px; font-family: sans-serif;">
-      @if (user()) {
-        <h1>Bonjour {{ user()?.firstName }} {{ user()?.lastName }} !</h1>
-        <p>Bienvenue sur votre espace MoneySur.</p>
-        <p>Votre solde actuel : <strong>{{ user()?.balance }} €</strong></p>
-      } @else {
-        <h1>Chargement de votre profil...</h1>
-      }
-    </div>
-  `
+  imports: [CommonModule, ButtonComponent],
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.css'
+
 })
 export class HomeComponent {
-  private store = inject(AuthStore);
+  readonly store = inject(AuthStore);
+  private readonly logoutUseCase = inject(LogoutUseCase);
 
   // On branche le signal du store pour l'affichage réactif
   user = this.store.currentUser;
+
+  onLogout() {
+    this.logoutUseCase.execute();
+  }
 }

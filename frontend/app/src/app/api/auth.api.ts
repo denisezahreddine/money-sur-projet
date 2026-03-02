@@ -34,4 +34,10 @@ export class AuthApi {
       withCredentials: true
     });
   }
+  logout() {
+    return this.http.post(`${this.baseUrl}/auth/logout`, {}, {
+      withCredentials: true,
+      responseType: 'text'   // backend renvoie une simple String "Déconnexion réussie"
+    });
+  }
 }
