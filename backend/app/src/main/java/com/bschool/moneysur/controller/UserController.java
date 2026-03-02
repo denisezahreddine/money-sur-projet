@@ -5,13 +5,17 @@ import com.bschool.moneysur.dto.UserRegistrationDto;
 import com.bschool.moneysur.repository.UserRepository;
 import com.bschool.moneysur.service.UserService;
 import com.bschool.moneysur.user.User;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import java.util.Map;
+import java.util.Optional;
 
 import java.util.Map;
 import java.util.Optional;
@@ -82,6 +86,31 @@ public class UserController {
         }
     }
 
+    @GetMapping("/connected-user")
+    public ResponseEntity<?> getConnectedUser(@AuthenticationPrincipal UserDetails userDetails) {
+
+        // 1. Si le JWT est absent ou invalide, userDetails sera null
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Aucune session active"));
+        }
+
+        // 2. On récupère l'email depuis le token validé
+        String email = userDetails.getUsername();
+
+        // 3. On va chercher les infos fraîches en base de données
+        Optional<User> currentUser = userRepository.findByEmail(email);
+
+        if (currentUser.isPresent()) {
+            // Note : Spring convertit automatiquement l'objet User en JSON
+            // (Assure-toi que le champ password a bien @JsonIgnore dans ton entité User pour ne pas l'envoyer au front !)
+            return ResponseEntity.ok(currentUser.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Utilisateur introuvable"));
+        }
+    }
+
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response) {
 
@@ -97,6 +126,7 @@ public class UserController {
 
         return ResponseEntity.ok("Déconnexion réussie");
     }
+
 
 
 

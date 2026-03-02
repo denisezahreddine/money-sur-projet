@@ -27,4 +27,11 @@ export class AuthApi {
       withCredentials: true
     });
   }
+
+  // Dans auth.api.ts
+  getCurrentUser() {
+    return this.http.get<User>(`${this.baseUrl}/auth/connected-user`, {
+      withCredentials: true
+    });
+  }
 }
