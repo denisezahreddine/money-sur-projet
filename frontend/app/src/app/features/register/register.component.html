@@ -1,0 +1,66 @@
+<app-auth-layout>
+
+    <h1 class="title">
+      Créer un compte <app-audio-icon color="#3bb273"></app-audio-icon>
+    </h1>
+
+    <p class="subtitle">Rejoignez MoneySur en quelques étapes</p>
+    <div *ngIf="registrationSubmited && !errorMessage()" class="success-banner">
+     <p> <strong>Inscription réussie !</strong></p>
+     <p>Un e-mail de confirmation a été envoyé. Veuillez cliquer sur le lien dans votre boîte mail pour activer votre compte.</p>
+    </div>
+
+    <div *ngIf="errorMessage()" class="error-banner">{{ errorMessage() }}</div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+
+      <app-label>Nom complet <app-audio-icon ></app-audio-icon></app-label>
+      <input type="text" formControlName="fullName" placeholder="Robert Dupont" class="input" />
+
+      <app-label>Adresse email <app-audio-icon ></app-audio-icon></app-label>
+      <input type="email" formControlName="email" placeholder="exemple@email.com" class="input" />
+      <div *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.invalid" class="error-banner">
+        Email invalide
+      </div>
+
+
+      <app-label>Mot de passe <app-audio-icon ></app-audio-icon></app-label>
+      <input type="password" formControlName="password" placeholder="........" class="input" />
+
+      <div *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.errors?.['pattern']" class="error-banner">
+        Le mot de passe doit contenir au minimum 8 caractères, dont 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial (@$!%*?&).
+      </div>
+
+      <app-label>Confirmez le mot de passe <app-audio-icon ></app-audio-icon></app-label>
+      <input type="password" formControlName="confirmPassword" placeholder="........" class="input"
+             [class.input-error]="registerForm.errors?.['mismatch'] && registerForm.get('confirmPassword')?.touched" />
+      <div *ngIf="registerForm.errors?.['mismatch'] && registerForm.get('confirmPassword')?.touched" class="error-banner">
+        Les mots de passe ne correspondent pas
+      </div>
+      <app-label>Type de profil <app-audio-icon></app-audio-icon></app-label>
+
+      <div class="profile-type-container">
+        <app-label class="profile-option">
+          <input type="radio" formControlName="typeProfil" value="family">
+         Famille
+        </app-label>
+
+        <app-label class="profile-option">
+          <input type="radio" formControlName="typeProfil" value="senior">
+           Senior
+        </app-label>
+      </div>
+
+      <app-button variant="primary" type="submit" [disabled]="registerForm.invalid || loading()">
+        <span *ngIf="!loading()">
+           Créer mon compte <app-audio-icon color="#FFFFFF"></app-audio-icon>
+        </span>
+        <span *ngIf="loading()">Création en cours...</span>
+      </app-button>
+    </form>
+
+    <p class="no-account">Vous avez déjà un compte ?</p>
+    <app-button variant="secondary" type="button"  routerLink="/login">
+      Se connecter <app-audio-icon color="#FFFFFF" ></app-audio-icon>
+    </app-button>
+</app-auth-layout>

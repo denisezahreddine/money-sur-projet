@@ -12,8 +12,8 @@ public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender mailSender;
 
-    @Value("${app.base-url}")
-    private String baseUrl;
+    @Value("${app.base-url-front}")
+    private String baseUrlFront;
 
     //  On récupère la valeur du YAML
     @Value("${app.mail-from}")
@@ -26,7 +26,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendVerificationEmail(String to, String token) {
         String subject = "Bienvenue sur MoneySur ! Confirmez votre email";
-        String verificationUrl = baseUrl + "/api/auth/verify-email?token=" + token;
+       String verificationUrl = baseUrlFront + "/verify-email?token=" + token;
 
         String htmlContent = "<h1>Bienvenue !</h1>"
                 + "<p>Merci de votre inscription.</p>"

@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://coding-bank.fly.dev/api',
+  apiUrl: 'http://localhost:8080/api', // On pointe sur le port local Spring Boot
 };

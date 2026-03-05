@@ -1,0 +1,55 @@
+/* --- Statut de Vérification (Email) --- */
+
+.status-box {
+  margin: 20px 0;
+  padding: 20px;
+  border-radius: var(--button-radius);
+  background-color: var(--color-bg-light);
+  border: 1px solid var(--color-border);
+  text-align: center;
+}
+
+.status-box p {
+  margin: 8px 0;
+  line-height: 1.4;
+}
+
+/* État Succès - Utilise ta variable secondary (Vert) */
+.status-box.success {
+  background-color: var(--color-bg-success-light);
+  border: 2px solid var(--color-secondary);
+}
+
+.status-box.success p:first-child {
+  color: var(--color-secondary-hover);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* État Erreur - Utilise ta variable error (Rouge) */
+.status-box.error {
+  background-color: var(--color-bg-error-light);
+  border: 2px solid var(--color-error);
+}
+
+.status-box.error p:first-child {
+  color: var(--color-error);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* Animation de chargement  */
+.loading-text {
+  color: var(--color-text-muted);
+  font-style: italic;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.action-button-container {
+  margin-top: 24px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}

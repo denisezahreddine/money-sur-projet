@@ -2,51 +2,63 @@ package com.bschool.moneysur.controller;
 
 import com.bschool.moneysur.dto.UserLoginDto;
 import com.bschool.moneysur.dto.UserRegistrationDto;
+import com.bschool.moneysur.repository.UserRepository;
 import com.bschool.moneysur.service.UserService;
 import com.bschool.moneysur.user.User;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import java.util.Map;
 import java.util.Optional;
 
+import java.util.Map;
+import java.util.Optional;
+
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/auth")
 public class UserController {
 
     private final UserService userService;
+    private final UserRepository userRepository;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService,UserRepository userRepository) {
         this.userService = userService;
+        this.userRepository = userRepository;
     }
 
     //REGISTER
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody UserRegistrationDto registrationDto) {
         if (userService.existsByEmail(registrationDto.getEmail())) {
-            return ResponseEntity.badRequest().body("Erreur : Email déjà utilisé !");
+            return ResponseEntity.badRequest().body(Map.of("message", "Erreur : Email déjà utilisé !"));
         }
 
         userService.register(registrationDto);
-        return ResponseEntity.ok("Inscription réussie ! Veuillez vérifier vos emails.");
+        return ResponseEntity.ok(Map.of("message", "Inscription réussie ! Veuillez vérifier vos emails."));
     }
 
     //LOGIN
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody UserLoginDto loginDto, HttpServletResponse response) {
+
+        Optional<User> userOptional = userService.findByEmail(loginDto.getEmail());
         Optional<String> token = userService.login(loginDto);
 
-        if (token.isPresent()) {
-            // Création du cookie moderne
+        if (token.isPresent() && userOptional.isPresent()) {
+            // Création du cookie
             ResponseCookie cookie =createAuthCookie(token.get());
 
+            //On renvoie l'objet User complet
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .body("Connexion réussie !");
+                    .body(userOptional.get());
         } else {
             return ResponseEntity.status(401).body("Email ou mot de passe incorrect");
         }
@@ -55,17 +67,47 @@ public class UserController {
     //  VERIFY EMAIL (Auto-Login)
     @GetMapping("/verify-email")
     public ResponseEntity<?> verifyEmail(@RequestParam("token") String token) {
-        Optional<String> jwt = userService.verifyEmailAndLogin(token);
+        try {
+            Optional<User> userOptional = userRepository.findByResetToken(token);
+            Optional<String> jwt = userService.verifyEmailAndLogin(token);
 
-        if (jwt.isPresent()) {
-            //  on crée le MEME cookie que pour le login
-            ResponseCookie cookie = createAuthCookie(jwt.get());
+            if (jwt.isPresent() && userOptional.isPresent()) {
+                ResponseCookie cookie = createAuthCookie(jwt.get());
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                        .body(userOptional.get());
+            } else {
 
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .body("Email vérifié avec succès ! Vous êtes connecté.");
+                return ResponseEntity.badRequest().body(Map.of("message", "Lien invalide ou expiré."));
+            }
+        } catch (Exception e) {
+            // Au cas où userService lance une exception si le token est déjà validé
+            return ResponseEntity.badRequest().body(Map.of("message", "Ce lien a déjà été utilisé ou a expiré."));
+        }
+    }
+
+    @GetMapping("/connected-user")
+    public ResponseEntity<?> getConnectedUser(@AuthenticationPrincipal UserDetails userDetails) {
+
+        // 1. Si le JWT est absent ou invalide, userDetails sera null
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Aucune session active"));
+        }
+
+        // 2. On récupère l'email depuis le token validé
+        String email = userDetails.getUsername();
+
+        // 3. On va chercher les infos fraîches en base de données
+        Optional<User> currentUser = userRepository.findByEmail(email);
+
+        if (currentUser.isPresent()) {
+            // Note : Spring convertit automatiquement l'objet User en JSON
+            // (Assure-toi que le champ password a bien @JsonIgnore dans ton entité User pour ne pas l'envoyer au front !)
+            return ResponseEntity.ok(currentUser.get());
         } else {
-            return ResponseEntity.badRequest().body("Lien invalide ou expiré.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Utilisateur introuvable"));
         }
     }
 
@@ -84,6 +126,8 @@ public class UserController {
 
         return ResponseEntity.ok("Déconnexion réussie");
     }
+
+
 
 
     private ResponseCookie createAuthCookie(String token) {
