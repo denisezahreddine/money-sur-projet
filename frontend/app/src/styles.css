@@ -1,3 +1,154 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import "tailwindcss";
+/* =========================
+   VARIABLES GLOBALES
+========================= */
+
+:root {
+
+  /*  Couleurs principales */
+  --color-primary: #174a8b;
+  --color-primary-hover: #0f3b70;
+
+  --color-secondary: #3bb273;
+  --color-secondary-hover: #2f945f;
+
+  /*  États */
+  --color-success: #2e7d32;
+  --color-warning: #ed6c02;
+  --color-error: #d62828;
+  --color-info: #0288d1;
+
+  /*  Texte */
+  --color-text: #000000;
+  --color-text-light: #333333;
+  --color-text-muted: #666666;
+
+  /*  Fonds */
+  --color-bg: #ffffff;
+  --color-bg-light: #f5f7fa;
+  --color-bg-card: #ffffff;
+
+  /*  Bordures */
+  --color-border: #dcdcdc;
+
+  /* Couleurs de fond pour les alertes/statuts */
+  --color-bg-success-light: #f0fff4; /* Vert très clair */
+  --color-bg-error-light: #fff5f5;   /* Rouge très clair */
+
+  /*  Boutons */
+  --button-height: 50px;
+  --button-radius: 14px;
+
+  /*  Typographie */
+  --font-size-base: 16px;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', 'Roboto', sans-serif;
+  font-size: var(--font-size-base);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* --- Textes et Titres --- */
+.title {
+  color: var(--color-primary);
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.subtitle {
+  color: var(--color-text-light);
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+/* --- Inputs --- */
+
+.input {
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--button-radius);
+  border: 2px solid var(--color-primary);
+  outline: none;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  border-color: var(--color-primary-hover);
+}
+
+.input-error {
+  border-color: var(--color-error) !important;
+}
+
+.error-banner {
+  background-color: #ffebee;
+  color: var(--color-error);
+  padding: 12px;
+  border-radius: 10px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  border: 1px solid var(--color-error);
+}
+
+.no-account {
+  margin-top: 30px;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.profile-type-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.profile-option {
+  flex: 1;
+  padding: 5px 12px;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--button-radius);
+  cursor: pointer;
+  font-weight: 600;
+  text-align: center;
+  transition: 0.3s;
+  font-size: 1rem;
+}
+
+
+.profile-option input {
+  margin-right: 6px;
+}
+
+.profile-option:hover {
+  background-color: var(--color-bg-light);
+}
+
+.success-banner {
+  background-color: var(--color-bg-success-light);
+  color: var(--color-success);
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  border: 1px solid var(--color-secondary);
+  text-align: center;
+}
+
+.success-banner strong {
+  display: block;
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}

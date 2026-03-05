@@ -1,9 +1,10 @@
-// src/main/java/com/example/demo/dto/UserRegistrationDto.java
+
 package com.bschool.moneysur.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 
 public class UserRegistrationDto {
 
@@ -14,7 +15,9 @@ public class UserRegistrationDto {
     @Email(message = "Format email invalide")
     @NotBlank
     private String email;
-    @Size(min = 8, message = "Le mot de passe doit faire au moins 8 caractères")
+
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).{8,}$",
+            message = "Le mot de passe doit contenir au minimum 8 caractères, dont 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.")
     @NotBlank
     private String password;
     private String typeProfil; // 'SENIOR' ou 'FAMILY'

@@ -1,5 +1,6 @@
 package com.bschool.moneysur.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -22,6 +23,7 @@ public class User {
     @Column(nullable = false, unique = true, length = 180)
     private String email;
 
+    @JsonIgnore
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
@@ -52,6 +54,7 @@ public class User {
     @Column(name = "pin_locked_until")
     private LocalDateTime pinLockedUntil;
 
+    @JsonIgnore
     @Column(name = "reset_token", length = 100)
     private String resetToken;
 

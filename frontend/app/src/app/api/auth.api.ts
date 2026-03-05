@@ -1,29 +1,43 @@
-import {inject, Injectable, signal} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {environment} from '../../environments/environment';
-import {LoginResponse} from './models/loginResponse.model';
-
+import { inject, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
+import { User } from '../api/models/user.models';
 
 
 @Injectable({ providedIn: 'root' })
 export class AuthApi {
-
   private http = inject(HttpClient);
   private readonly baseUrl = environment.apiUrl;
 
-
-  login(clientCode: string, password: string) {
-    return this.http.post<LoginResponse>(`${this.baseUrl}/auth/login`, {
-      clientCode,
-      password
+  login(credentials: any) {
+    return this.http.post(`${this.baseUrl}/auth/login`, credentials, {
+      withCredentials: true
     });
   }
 
-  register(name: string, password: string) {
-    return this.http.post<LoginResponse>(`${this.baseUrl}/auth/register`, {
-      name,
-      password
-    })
+  register(userData: any) {
+    return this.http.post(`${this.baseUrl}/auth/register`, userData, {
+      withCredentials: true
+    });
   }
 
+  verifyEmail(token: string) {
+    return this.http.get<User>(`${this.baseUrl}/auth/verify-email`, {
+      params: { token },
+      withCredentials: true
+    });
+  }
+
+  // Dans auth.api.ts
+  getCurrentUser() {
+    return this.http.get<User>(`${this.baseUrl}/auth/connected-user`, {
+      withCredentials: true
+    });
+  }
+  logout() {
+    return this.http.post(`${this.baseUrl}/auth/logout`, {}, {
+      withCredentials: true,
+      responseType: 'text'   // backend renvoie une simple String "Déconnexion réussie"
+    });
+  }
 }

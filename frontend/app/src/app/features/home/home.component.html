@@ -1,0 +1,24 @@
+<div  class="test-container">
+  @if (user()) {
+    <div class="user-info">
+    <h1>Bonjour {{ user()?.firstName }} {{ user()?.lastName }} !</h1>
+    <p>Bienvenue sur votre espace MoneySur.</p>
+    <p>Votre solde actuel : <strong>{{ user()?.balance }} €</strong></p>
+    </div>
+  } @else {
+    <div class="loading">
+    <h1>Chargement de votre profil...</h1>
+    </div>
+  }
+
+
+  <div class="actions">
+    <app-button
+      variant="secondary"
+      (click)="onLogout()"
+      [disabled]="store.loading()">
+      {{ store.loading() ? 'Déconnexion...' : 'Se déconnecter' }}
+    </app-button>
+  </div>
+</div>
+

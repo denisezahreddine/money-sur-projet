@@ -2,31 +2,20 @@ import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
-import {AuthStore} from '../store/auth.store';
-
+import { AuthStore } from '../store/auth.store';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const store = inject(AuthStore);
-  const publicUrls = ['/register', '/login'];
-  // Récupérer le token
-  const token = localStorage.getItem('access_token');
 
-  // Cloner la requête pour ajouter le Header si le token existe
-  let authReq = req;
-  if (token) {
-    authReq = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-  }
+  const authReq = req.clone({ withCredentials: true });
 
-  //  Envoyer la requête et surveiller les erreurs de retour
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && !publicUrls.some(url => req.url.includes(url))) {//500
-        // Si le token est expiré ou invalide
+      // On ne redirige pas si on est déjà sur les pages de login/register
+      const isPublicUrl = req.url.includes('/login') || req.url.includes('/register');
+
+      if (error.status === 401 && !isPublicUrl) {
         store.setLogout();
         router.navigate(['/login']);
       }
