@@ -1,15 +1,16 @@
 package com.bschool.moneysur.service;
 
-
 import com.bschool.moneysur.configuration.JwtUtil;
+import com.bschool.moneysur.dto.PinResponse;
 import com.bschool.moneysur.dto.UserLoginDto;
 import com.bschool.moneysur.dto.UserRegistrationDto;
 import com.bschool.moneysur.repository.UserRepository;
 import com.bschool.moneysur.user.User;
+import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -111,4 +112,63 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    @Override
+    public void setPin(String email, String rawPin) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+        // Sécurité : On hache le PIN avec BCrypt comme pour le mot de passe
+        user.setPinHash(passwordEncoder.encode(rawPin));
+
+        // On s'assure que les compteurs d'essais sont à zéro pour un nouveau PIN
+        user.setPinAttempts(0);
+        user.setPinLockedUntil(null);
+
+        userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public PinResponse verifyPin(String email, String rawPin) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isEmpty()) return new PinResponse(false, "USER_NOT_FOUND", 0, null);
+
+        User user = userOptional.get();
+        LocalDateTime now = LocalDateTime.now();
+
+        // GESTION DU RESET TEMPOREL (Nettoyage automatique)
+        // Si une date de blocage existe et qu'elle est passée : on nettoie la BDD
+        if (user.getPinLockedUntil() != null && user.getPinLockedUntil().isBefore(now)) {
+            user.setPinLockedUntil(null);
+            user.setPinAttempts(0);
+        }
+
+        //  VÉRIFICATION DU BLOCAGE ACTIF
+        if (user.getPinLockedUntil() != null && user.getPinLockedUntil().isAfter(now)) {
+            return new PinResponse(false, "LOCKED", 0, user.getPinLockedUntil());
+        }
+
+        // VÉRIFICATION DU PIN
+        if (passwordEncoder.matches(rawPin, user.getPinHash())) {
+            user.setPinAttempts(0);
+            user.setPinLockedUntil(null);
+            userRepository.save(user);
+            return new PinResponse(true, "VALID", 3, null);
+        } else {
+            //  ÉCHEC : Le compteur repartira de 1 (grâce au reset ci-dessus si nécessaire)
+            int newAttempts = user.getPinAttempts() + 1;
+            user.setPinAttempts(newAttempts);
+
+            if (newAttempts >= 3) {
+                user.setPinLockedUntil(now.plusMinutes(1));//mettre 15 min apres
+                userRepository.save(user);
+                return new PinResponse(false, "LOCKED", 0, user.getPinLockedUntil());
+            } else {
+                userRepository.save(user);
+                return new PinResponse(false, "WRONG_PIN", 3 - newAttempts, null);
+            }
+        }
+    }
 }
+
+

@@ -2,6 +2,7 @@ package com.bschool.moneysur.service;
 
 
 
+import com.bschool.moneysur.dto.PinResponse;
 import com.bschool.moneysur.dto.UserLoginDto;
 import com.bschool.moneysur.dto.UserRegistrationDto;
 import com.bschool.moneysur.user.User;
@@ -20,4 +21,8 @@ public interface UserService  {
     boolean existsByEmail(String email);
 
     Optional<String> verifyEmailAndLogin(String token);
+
+    void setPin(String email, String rawPin);
+
+     PinResponse verifyPin(String email, String rawPin);
 }

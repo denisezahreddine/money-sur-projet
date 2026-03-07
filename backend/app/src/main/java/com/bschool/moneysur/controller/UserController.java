@@ -1,5 +1,7 @@
 package com.bschool.moneysur.controller;
 
+import com.bschool.moneysur.dto.PinRequestDto;
+import com.bschool.moneysur.dto.PinResponse;
 import com.bschool.moneysur.dto.UserLoginDto;
 import com.bschool.moneysur.dto.UserRegistrationDto;
 import com.bschool.moneysur.repository.UserRepository;
@@ -17,8 +19,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import java.util.Map;
 import java.util.Optional;
 
-import java.util.Map;
-import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -89,21 +89,19 @@ public class UserController {
     @GetMapping("/connected-user")
     public ResponseEntity<?> getConnectedUser(@AuthenticationPrincipal UserDetails userDetails) {
 
-        // 1. Si le JWT est absent ou invalide, userDetails sera null
+        // Si le JWT est absent ou invalide, userDetails sera null
         if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("message", "Aucune session active"));
         }
 
-        // 2. On récupère l'email depuis le token validé
+        // On récupère l'email depuis le token validé
         String email = userDetails.getUsername();
 
-        // 3. On va chercher les infos fraîches en base de données
+        // On va chercher les infos fraîches en base de données
         Optional<User> currentUser = userRepository.findByEmail(email);
 
         if (currentUser.isPresent()) {
-            // Note : Spring convertit automatiquement l'objet User en JSON
-            // (Assure-toi que le champ password a bien @JsonIgnore dans ton entité User pour ne pas l'envoyer au front !)
             return ResponseEntity.ok(currentUser.get());
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -128,7 +126,42 @@ public class UserController {
     }
 
 
+    @PostMapping("/set-pin")
+    public ResponseEntity<?> setPin(
+            @Valid @RequestBody PinRequestDto pinRequestDto,
+            @AuthenticationPrincipal UserDetails userDetails) {
 
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        userService.setPin(userDetails.getUsername(), pinRequestDto.getPin());
+
+        return ResponseEntity.ok(Map.of("message", "Code PIN configuré avec succès !"));
+    }
+
+    @PostMapping("/verify-pin")
+    public ResponseEntity<PinResponse> verifyPin(
+            @Valid @RequestBody PinRequestDto pinRequestDto,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        // On appelle le service qui renvoie l'objet PinResponse complet
+        PinResponse response = userService.verifyPin(userDetails.getUsername(), pinRequestDto.getPin());
+
+        // On détermine le code HTTP en fonction du message dans la réponse
+        return switch (response.message()) {
+            case "VALID" -> ResponseEntity.ok(response);
+
+            case "LOCKED" -> ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(response);
+
+            case "WRONG_PIN" -> ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(response);
+
+            default -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(response);
+        };
+    }
 
     private ResponseCookie createAuthCookie(String token) {
         return ResponseCookie.from("token", token)
